@@ -50,19 +50,22 @@ def allocation_of_resources(powerplants, load):
             # minimal production of the powerplant is more than requiered load, so lets borrow production from previous sources
             production_to_borrow = powerplant['pmin'] - remaining_load
             for index_to_borrow in range(index - 1, -1, -1):
-                if powerplants[index_to_borrow]['production(MWh)'] - production_to_borrow >= powerplants[index_to_borrow]['pmin']:
-                    powerplants[index_to_borrow]['production(MWh)'] -= production_to_borrow
-                    production_to_borrow = 0
-                    powerplants[index_to_borrow]['production_cost(euro)'] = powerplants[index_to_borrow]['production(MWh)'] * powerplants[index_to_borrow]['price(eur/MWh)']
-                    break
-                else:
-                    powerplants[index_to_borrow]['production(MWh)'] = powerplants[index_to_borrow]['pmin']
-                    production_to_borrow -= powerplants[index_to_borrow]['production(MWh)'] - powerplants[index_to_borrow]['pmin']
-                    powerplants[index_to_borrow]['production_cost(euro)'] = powerplants[index_to_borrow]['production(MWh)'] * powerplants[index_to_borrow]['price(eur/MWh)']
+                if powerplants[index_to_borrow]['type'] != 'windturbine':
+                    if powerplants[index_to_borrow]['production(MWh)'] - production_to_borrow >= powerplants[index_to_borrow]['pmin']:
+                        powerplants[index_to_borrow]['production(MWh)'] -= production_to_borrow
+                        production_to_borrow = 0
+                        powerplants[index_to_borrow]['production_cost(euro)'] = powerplants[index_to_borrow]['production(MWh)'] * powerplants[index_to_borrow]['price(eur/MWh)']
+                        break
+                    else:
+                        if powerplants[index_to_borrow]['production(MWh)'] != 0:
+                            powerplants[index_to_borrow]['production(MWh)'] = powerplants[index_to_borrow]['pmin']
+                            production_to_borrow -= powerplants[index_to_borrow]['production(MWh)'] - powerplants[index_to_borrow]['pmin']
+                            powerplants[index_to_borrow]['production_cost(euro)'] = powerplants[index_to_borrow]['production(MWh)'] * powerplants[index_to_borrow]['price(eur/MWh)']
 
             if production_to_borrow != 0:
                 # unable to borrow enough power from settled powerplats
-                print("Unable to borrow enough power from settled powerplats")
+                powerplant['production(MWh)'] = 0
+                powerplant['production_cost(euro)'] = 0
             else:
                 remaining_load = powerplant['pmin']
                 powerplant['production(MWh)'] = remaining_load
@@ -71,6 +74,7 @@ def allocation_of_resources(powerplants, load):
 
         elif powerplant['pmin'] <= remaining_load <= powerplant['pmax']:
             # the powerplant is final that is used to supply load
+            #if powerplant['type'] != 'windturbine':
             powerplant['production(MWh)'] = remaining_load
             powerplant['production_cost(euro)'] = powerplant['production(MWh)'] * powerplant['price(eur/MWh)']
             remaining_load -= powerplant['production(MWh)']
@@ -83,7 +87,7 @@ def allocation_of_resources(powerplants, load):
         print(f"Unable to supply enough production to meet requirements")
 
 
-def produce_output(powerplants):
+def produce_output(powerplants, desired_load):
     output_list = []
     output_production = 0
     cost_of_production = 0
@@ -94,12 +98,17 @@ def produce_output(powerplants):
         output_production += powerplant['production(MWh)']
         cost_of_production += powerplant['production_cost(euro)']
 
+    if round(output_production, 1) != round(desired_load, 1):
+        print(f"Production does not match load {desired_load}, delivered load {output_production}")
+        print(f"{output_list}")
+
     print(f"Output production {output_production}(MWh) at cost {cost_of_production} euro")
+
     return output_list
 
 
 def processing_output(input):
-    print(f"{input}")
+    #print(f"{input}")
     load = input["load"]
     fuels = input["fuels"]
     powerplants = input["powerplants"]
@@ -112,6 +121,6 @@ def processing_output(input):
     calculate_powerplant_price(powerplants, fuels)
     sorted_powerplants = sort_sources(powerplants)
     allocation_of_resources(sorted_powerplants, load)
-    output_list = produce_output(sorted_powerplants)
+    output_list = produce_output(sorted_powerplants, load)
     json_output = json.dumps(output_list)
     return json_output

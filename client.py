@@ -7,7 +7,7 @@ localhost_url = 'http://127.0.0.1:8888/productionplan'
 docker_url = 'http://172.17.0.2:8888/productionplan'
 
 if __name__ == "__main__":
-    filename = "example_payloads/payload3.json"
+    filename = "example_payloads/payload1.json"
 
     with open(filename, "rt") as file_handler:
         payload = json.load(file_handler)
@@ -23,6 +23,6 @@ if __name__ == "__main__":
             print("Error happened")
     else:
         from powerplant_payload import processing_output
-        output = processing_output(payload)
 
+        output = processing_output(payload)
         print(output)
