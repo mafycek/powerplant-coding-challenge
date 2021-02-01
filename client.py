@@ -1,13 +1,13 @@
 import requests
 import json
 
-send_request = True
+send_request = False
 
 localhost_url = 'http://127.0.0.1:8888/productionplan'
 docker_url = 'http://172.17.0.2:8888/productionplan'
 
 if __name__ == "__main__":
-    filename = "example_payloads/payload1.json"
+    filename = "example_payloads/payload3.json"
 
     with open(filename, "rt") as file_handler:
         payload = json.load(file_handler)
