@@ -1,7 +1,7 @@
 import requests
 import json
 
-send_request = False
+send_request = True
 
 localhost_url = 'http://127.0.0.1:8888/productionplan'
 docker_url = 'http://172.17.0.2:8888/productionplan'
