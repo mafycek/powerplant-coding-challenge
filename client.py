@@ -13,8 +13,7 @@ if __name__ == "__main__":
         payload = json.load(file_handler)
 
     if send_request:
-        json_paylod = json.dumps(payload)
-        answer = requests.post(docker_url, json=json_paylod)
+        answer = requests.post(docker_url, json=payload)
         if answer.ok:
             print("Correctly processed")
 
