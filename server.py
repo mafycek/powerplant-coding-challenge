@@ -12,7 +12,13 @@ def help():
 
 @app.route('/productionplan', methods=['POST'])
 def productionplan():
-    input = json.loads(request.json)
+    if isinstance(request.json, dict):
+        # well, this is a strange case when request.json is a dict
+        print(f"The strange input: {request.json}")
+        input = request.json
+    else:
+        input = json.loads(request.json)
+
     output = processing_output(input)
 
     return output
